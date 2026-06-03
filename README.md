@@ -62,6 +62,168 @@ de forma reproduzível.
     └── manutencao.py     # AgendarManutencao, GerarRelatorio
 ```
 
+## Diagrama de classes
+
+O diagrama abaixo é renderizado automaticamente pelo GitHub. Convenções: `+`
+público, `-` interno (no código, prefixo `_`); `<<abstract>>` marca classes
+abstratas (`ABC`); `<|--` herança, `*--` composição, `o--` agregação, `..>`
+dependência.
+
+```mermaid
+classDiagram
+    direction TB
+
+    %% ===== Prioridades =====
+    class Prioridade {
+        <<abstract>>
+        +valor() int
+        +nome() str
+    }
+    class Critica {
+        +valor() int
+        +nome() str
+    }
+    class Alta {
+        +valor() int
+        +nome() str
+    }
+    class Media {
+        +valor() int
+        +nome() str
+    }
+    class Baixa {
+        +valor() int
+        +nome() str
+    }
+
+    %% ===== Tarefas =====
+    class Tarefa {
+        <<abstract>>
+        -int id_reator
+        -Prioridade prioridade
+        +resumo() str
+    }
+    class TarefaMonitoramento {
+        <<abstract>>
+        +executar() void
+    }
+    class TarefaEmergencia {
+        <<abstract>>
+        -str motivo
+        +executar() void
+    }
+    class TarefaManutencao {
+        <<abstract>>
+        -str turno
+        +executar() void
+    }
+    class MonitorarTemperatura {
+        -float limite
+        +resumo() str
+        +executar() void
+    }
+    class MonitorarRadiacao {
+        -float nivel_max
+        +resumo() str
+        +executar() void
+    }
+    class MonitorarRefrigeracao {
+        -float pressao_min
+        +resumo() str
+        +executar() void
+    }
+    class DesligarReator {
+        +resumo() str
+        +executar() void
+    }
+    class EvacuarPessoal {
+        -str zona
+        +resumo() str
+        +executar() void
+    }
+    class AgendarManutencao {
+        -str data
+        +executar() void
+    }
+    class GerarRelatorio {
+        +executar() void
+    }
+
+    %% ===== Factory =====
+    class FabricaDeTarefas {
+        -dict catalogo
+        +criar(tipo, kwargs) Tarefa
+    }
+
+    %% ===== Orquestrador =====
+    class OrquestradorUsina {
+        -list fila
+        -int contador
+        -dict reatores
+        -list observadores
+        +enfileirar(tarefa) void
+        +executar_proxima() void
+        +executar_todas() void
+        +ver_status() void
+        -reator(id_reator) Reator
+    }
+
+    %% ===== Observer =====
+    class Reator {
+        -int id
+        -list observadores
+        +inscrever(observador) void
+        +processar(tarefa) void
+        -notificar(evento) void
+    }
+    class Observador {
+        <<abstract>>
+        +atualizar(evento) void
+    }
+    class Evento {
+        +str descricao
+        +bool critico
+        +int id_reator
+    }
+    class SistemaDeAlarme {
+        +atualizar(evento) void
+    }
+    class PainelDeControle {
+        +atualizar(evento) void
+    }
+
+    %% ===== Heranças =====
+    Prioridade <|-- Critica
+    Prioridade <|-- Alta
+    Prioridade <|-- Media
+    Prioridade <|-- Baixa
+    Tarefa <|-- TarefaMonitoramento
+    Tarefa <|-- TarefaEmergencia
+    Tarefa <|-- TarefaManutencao
+    TarefaMonitoramento <|-- MonitorarTemperatura
+    TarefaMonitoramento <|-- MonitorarRadiacao
+    TarefaMonitoramento <|-- MonitorarRefrigeracao
+    TarefaEmergencia <|-- DesligarReator
+    TarefaEmergencia <|-- EvacuarPessoal
+    TarefaManutencao <|-- AgendarManutencao
+    TarefaManutencao <|-- GerarRelatorio
+    Observador <|-- SistemaDeAlarme
+    Observador <|-- PainelDeControle
+
+    %% ===== Composição e agregação =====
+    Tarefa "1" *-- "1" Prioridade : possui
+    OrquestradorUsina "1" *-- "0..*" Reator : reatores
+    OrquestradorUsina "1" o-- "0..*" Tarefa : fila
+    OrquestradorUsina "1" o-- "0..*" Observador : observadores
+    Reator "1" o-- "0..*" Observador : observadores
+
+    %% ===== Dependências =====
+    FabricaDeTarefas ..> Tarefa : cria
+    Reator ..> Evento : cria
+    Reator ..> Tarefa : processa
+    Observador ..> Evento : recebe
+```
+
 ## Descrição das classes
 
 | Classe                                                               | Arquivo                  | Responsabilidade                                                                             |
@@ -81,9 +243,11 @@ de forma reproduzível.
 
 ## Pilares da POO aplicados
 
-- **Abstração** — `Tarefa`, `Prioridade` e `Observador` são classes abstratas
-  (`ABC`) que definem contratos com `@abstractmethod` (`executar`, `valor`/`nome`,
-  `atualizar`), sem implementação concreta.
+- **Abstração** — `Prioridade` e `Observador` são classes abstratas (`ABC`) com
+  métodos `@abstractmethod` (`valor`/`nome` e `atualizar`). `Tarefa` é a base
+  abstrata da hierarquia, e o contrato `executar()` é declarado como
+  `@abstractmethod` nas classes intermediárias (`TarefaMonitoramento`,
+  `TarefaEmergencia`, `TarefaManutencao`).
 - **Encapsulamento** — atributos são internos (prefixo `_`) e o acesso é feito por
   `@property` (por exemplo `id_reator`, `prioridade`, `limite`), protegendo o
   estado interno.
@@ -147,5 +311,5 @@ estender e testar.
 `**kwargs`, da fila de prioridade com `heapq` e do padrão Observer), escrita dos testes automáticos, e revisar a documentação do projeto.
 
 **Validação:** declaro que todo o código foi lido, testado e ajustado conforme as
-necessidades do projeto e da disciplina. A responsabilidade pela arquitetura, pelas
+necessidades do projeto e da disciplina. A responsabilidade pela arquitetura, pelas  
 decisões de design e pela correção do código é inteiramente minha.

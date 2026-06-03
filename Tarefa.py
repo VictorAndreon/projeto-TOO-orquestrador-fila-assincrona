@@ -19,8 +19,4 @@ class Tarefa(ABC):
         self._prioridade = nova
 
     def resumo(self) -> str:
-        """Descrição curta do dado da tarefa, exibida pelo painel (Observer).
-
-        Padrão: usa a prioridade. Subclasses com um valor relevante a mostrar
-        sobrescrevem este método (polimorfismo)."""
         return f"prioridade {self._prioridade.nome()}"
