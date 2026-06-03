@@ -22,6 +22,9 @@ class DesligarReator(TarefaEmergencia):
     def __init__(self, id_reator: int, motivo: str):
         super().__init__(id_reator, motivo)
 
+    def resumo(self) -> str:
+        return f"motivo: {self._motivo}"
+
     def executar(self) -> None:
         print(f"[Reator {self._id_reator}] DESLIGAMENTO DE EMERGÊNCIA — motivo: {self._motivo}")
 
@@ -35,6 +38,9 @@ class EvacuarPessoal(TarefaEmergencia):
     @property
     def zona(self) -> str:
         return self._zona
+
+    def resumo(self) -> str:
+        return f"zona {self._zona} — {self._motivo}"
 
     def executar(self) -> None:
         print(f"[Reator {self._id_reator}] EVACUAÇÃO — zona: {self._zona} — motivo: {self._motivo}")

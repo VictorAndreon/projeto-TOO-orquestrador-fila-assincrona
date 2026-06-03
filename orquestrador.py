@@ -1,17 +1,31 @@
 import heapq
 from Tarefa import Tarefa
+from reator import Reator
+from observadores import SistemaDeAlarme, PainelDeControle
 
 
 class OrquestradorUsina:
 
-    def __init__(self):
+    def __init__(self, observadores=None):
         self._fila: list    = []
-        self._contador: int = 0  
+        self._contador: int = 0
+        self._reatores: dict = {}  
+        self._observadores  = (observadores if observadores is not None
+                               else [SistemaDeAlarme(), PainelDeControle()])
+
+    def _reator(self, id_reator: int) -> Reator:
+        if id_reator not in self._reatores:
+            reator = Reator(id_reator)
+            for obs in self._observadores:
+                reator.inscrever(obs)
+            self._reatores[id_reator] = reator
+        return self._reatores[id_reator]
 
     def enfileirar(self, tarefa: Tarefa) -> None:
         heapq.heappush(self._fila, (tarefa.prioridade.valor(), self._contador, tarefa))
         self._contador += 1
         print(f"✓ Enfileirada: {tarefa.__class__.__name__} [{tarefa.prioridade.nome()}]")
+        self._reator(tarefa.id_reator).processar(tarefa)  
 
     def executar_proxima(self) -> None:
         if not self._fila:

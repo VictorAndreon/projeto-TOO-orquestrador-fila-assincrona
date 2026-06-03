@@ -19,6 +19,9 @@ class MonitorarTemperatura(TarefaMonitoramento):
     def limite(self) -> float:
         return self._limite
 
+    def resumo(self) -> str:
+        return f"limite {self._limite}°C"
+
     def executar(self) -> None:
         print(f"[Reator {self._id_reator}] Monitorando temperatura — limite: {self._limite}°C")
 
@@ -33,6 +36,9 @@ class MonitorarRadiacao(TarefaMonitoramento):
     def nivel_max(self) -> float:
         return self._nivel_max
 
+    def resumo(self) -> str:
+        return f"nível máx {self._nivel_max} mSv"
+
     def executar(self) -> None:
         print(f"[Reator {self._id_reator}] Monitorando radiação — nível máximo: {self._nivel_max} mSv")
 
@@ -46,6 +52,9 @@ class MonitorarRefrigeracao(TarefaMonitoramento):
     @property
     def pressao_min(self) -> float:
         return self._pressao_min
+
+    def resumo(self) -> str:
+        return f"pressão mín {self._pressao_min} bar"
 
     def executar(self) -> None:
         print(f"[Reator {self._id_reator}] Monitorando refrigeração — pressão mínima: {self._pressao_min} bar")
